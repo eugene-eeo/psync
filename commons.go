@@ -1,11 +1,11 @@
 package main
 
 import (
-	"os/user"
-	"path/filepath"
 	"crypto/sha256"
 	"encoding/hex"
 	"os"
+	"os/user"
+	"path/filepath"
 )
 
 func PsyncBlocksDir() string {
