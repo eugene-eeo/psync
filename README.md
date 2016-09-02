@@ -1,12 +1,12 @@
 # psync
 
 p2p block distribution service thing. you can choose to run a
-server that serves some blocks (4096-byte chunks):
+server that serves some blocks (8192-byte chunks):
 
-    $ psync-export image.png | tee image.png.hashlist
+    $ psync export image.png | tee image.png.hashlist
     ba7816bf...
     cb8379ac...
-    $ psync-server localhost:8000
+    $ psync up localhost:8000
 
 and then others will get data from your servers if they find you:
 
@@ -19,7 +19,7 @@ to a solution, maybe a checksum of hashlists then I will implement it.
 ## wat
 
 at its core psync is a tool for resolving hashlists. say you have
-a file, `image.png` which you split into blocks of 4096 bytes and
+a file, `image.png` which you split into blocks of 8192 bytes and
 hash them: (the checksums are shortened for brevity)
 
     ba7816bf   START OF FILE....
