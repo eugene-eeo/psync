@@ -1,20 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"os/user"
 	"path/filepath"
-	"log"
-	"fmt"
-	"io"
-	"crypto/sha256"
-	"encoding/hex"
 )
-
-func Checksum(data []byte) string {
-	b := sha256.Sum256(data)
-	return hex.EncodeToString(b[:])
-}
 
 func PsyncBlocksDir() string {
 	usr, _ := user.Current()
@@ -25,23 +18,36 @@ func InitHome() {
 	os.MkdirAll(PsyncBlocksDir(), 0755)
 }
 
+func Checksum(data []byte) string {
+	b := sha256.Sum256(data)
+	return hex.EncodeToString(b[:])
+}
+
 func check(err error) {
 	if err != nil {
-		log.Fatal(err)
+		print(err)
+		print("\n")
+		os.Exit(1)
 	}
 }
 
-func Export(filename string) {
+func main() {
+	InitHome()
+	args := os.Args[1:]
+	if len(args) != 1 {
+		print("usage: psync-export <filename>\n")
+		os.Exit(1)
+	}
+
+	filename := args[0]
+
 	blocks_dir := PsyncBlocksDir()
 	f, err := os.Open(filename)
 	check(err)
 	defer f.Close()
 	for {
 		buffer := make([]byte, 4096)
-		actual, err := f.Read(buffer)
-		if err != io.EOF {
-			check(err)
-		}
+		actual, _ := f.Read(buffer)
 		if actual == 0 {
 			break
 		}
