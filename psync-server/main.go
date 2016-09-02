@@ -26,7 +26,7 @@ func main() {
 	}
 	addr := args[0]
 	root := PsyncBlocksDir()
-	bufpool := bpool.NewBytePool(4096*4, 4096)
+	bufpool := bpool.NewBytePool(20, 4096)
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.GET("/:checksum", func(c *gin.Context) {
@@ -34,13 +34,8 @@ func main() {
 		blobpath := filepath.Join(root, checksum)
 		f, err := os.Open(blobpath)
 		if err != nil {
-			if os.IsNotExist(err) {
-				c.AbortWithStatus(404)
-				return
-			} else {
-				c.AbortWithStatus(500)
-				return
-			}
+			c.AbortWithStatus(404)
+			return
 		}
 		defer f.Close()
 		buff := bufpool.Get()
