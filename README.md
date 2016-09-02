@@ -48,10 +48,10 @@ download the file:
         ...
         hash(rN) == cb8379ac  (ok, keep chunk)
 
-the advantage of hashlists is that retying downloads are cheaper
-since you don't have to download the *entire* file again, and we
-can download files from potentially untrusted sources, provided
-that the hashlist is trusted.
+the advantage of hashlists is that retrying downloads are cheaper
+since you don't have to download the *entire* file again, and you
+can download files from potentially untrusted sources - the only
+trusted thing is the hashlist.
 
 
 ## todo

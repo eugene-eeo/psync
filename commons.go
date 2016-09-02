@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"log"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -20,4 +21,10 @@ func InitHome() {
 func Checksum(data []byte) string {
 	b := sha256.Sum256(data)
 	return hex.EncodeToString(b[:])
+}
+
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
