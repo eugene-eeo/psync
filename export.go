@@ -2,21 +2,14 @@ package main
 
 import (
 	"fmt"
-	"crypto/sha256"
-	"encoding/hex"
 	"os"
 	"path/filepath"
+	"log"
 )
-
-func Checksum(data []byte) string {
-	b := sha256.Sum256(data)
-	return hex.EncodeToString(b[:])
-}
 
 func check(err error) {
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
