@@ -3,10 +3,10 @@
 p2p block distribution service thing. you can choose to run a
 server that serves some blocks (4096-byte chunks):
 
-    $ psync-server export image.png | tee image.png.hashlist
+    $ psync-export image.png | tee image.png.hashlist
     ba7816bf...
     cb8379ac...
-    $ psync-server up localhost:8000
+    $ psync-server localhost:8000
 
 and then others will get data from your servers if they trust you:
 
