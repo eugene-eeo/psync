@@ -1,14 +1,10 @@
 """
 usage:
-    psync export <filename>
-    psync server <addr>
     psync get <addr> <hashlist>
 """
 
 from docopt import docopt
 from hashlib import sha256
-from werkzeug.wrappers import Request
-from gevent.wsgi import WSGIServer
 import sys
 import grequests
 import os
@@ -22,46 +18,6 @@ class Block:
     @classmethod
     def from_bytes(cls, data):
         return cls(sha256(data).hexdigest(), data)
-
-
-def hashlist(blocks):
-    return [b.checksum for b in blocks]
-
-
-def chunked(fp, chunksize=4096):
-    while True:
-        chunk = fp.read(chunksize)
-        if not chunk:
-            break
-        yield chunk
-
-
-def export(args):
-    filename = args['<filename>']
-    os.makedirs('psync-blocks', exist_ok=True)
-    with open(filename, 'rb') as fp:
-        for chunk in chunked(fp):
-            block = Block.from_bytes(chunk)
-            f = os.path.join('psync-blocks', block.checksum)
-            with open(f, 'wb') as dst:
-                dst.write(block.contents)
-            print(block.checksum)
-
-
-def application(environ, start_response):
-    request = Request(environ)
-    f = os.path.join('psync-blocks', request.path[1:])
-    if os.path.exists(f):
-        with open(f, 'rb') as fp:
-            start_response('200 OK', [])
-            yield from chunked(fp)
-            return
-    start_response('404 NOT FOUND', [])
-
-
-def server(args):
-    os.makedirs('psync-blocks', exist_ok=True)
-    WSGIServer(args['<addr>'], application=application).serve_forever()
 
 
 def get_checksums(source):
@@ -103,9 +59,5 @@ def get(args):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    if args['export']:
-        export(args)
-    if args['server']:
-        server(args)
     if args['get']:
         get(args)
