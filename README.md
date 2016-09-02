@@ -25,11 +25,11 @@ hash them: (the checksums are shortened for brevity)
     ba7816bf   START OF FILE....
     cb8379ac   ......END OF FILE
 
-the hashes on the left are used (in order) to make a hashlist,
-that you share with your friend (the hash list is much smaller than
-the data). your friend wants to download the file, but not all nodes
-have the chunks that make up the file or will give the correct chunks.
-so he/she does the following:
+the hashes on the left are used to make a hashlist (same order as
+above) that you share with your friend (the hash list is much smaller
+than the data). your friend wants to download the file, but not all
+nodes have the chunks that make up the file or will give the correct
+chunks. so he/she does the following:
 
 1. make requests to some server for the all the chunks.
 
@@ -47,7 +47,12 @@ so he/she does the following:
         hash(http://other2.io/cb8379ac) != cb8379ac  (nope)
         hash(http://other3.io/cb8379ac) == cb8379ac  (ok, keep chunk)
 
-4. once he/she has downloaded all the chunks he/she just needs to put the chunks together and obtain the same data as you.
+once he/she has downloaded all the chunks he/she just needs to put
+the chunks together and obtain the same data as you. the advantage
+of hashlists is that retying downloads are cheaper since you don't
+have to download the *entire* file again, and we can download files
+from potentially untrusted sources, provided that the source of the
+hashlist is reputable.
 
 
 ## todo
