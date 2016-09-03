@@ -30,7 +30,7 @@ func fetchBlock(addr string, hashes <-chan lib.Checksum, blobs chan<- *blob, don
 }
 
 func writeBlobs(blobs <-chan *blob, done chan<- bool) {
-	root := lib.PsyncBlocksDir()
+	root := lib.BlocksDir()
 	for b := range blobs {
 		block := lib.NewBlock(b.data)
 		if block.Checksum != b.expected {

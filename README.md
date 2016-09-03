@@ -53,7 +53,6 @@ since you don't have to download the *entire* file again, and you
 can download files from potentially untrusted sources - the only
 trusted thing is the hashlist.
 
-
 ## todo
 
  - come up with method for peer sharing

@@ -9,7 +9,7 @@ import (
 )
 
 func Serve(addr string) {
-	root := lib.PsyncBlocksDir()
+	root := lib.BlocksDir()
 	pool := bpool.NewBytePool(20, lib.BLOCK_SIZE)
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()

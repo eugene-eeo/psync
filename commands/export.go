@@ -15,7 +15,7 @@ func CheckError(err error) {
 }
 
 func Export(filename string) {
-	root := lib.PsyncBlocksDir()
+	root := lib.BlocksDir()
 	f, err := os.Open(filename)
 	CheckError(err)
 	defer f.Close()
