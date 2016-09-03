@@ -1,6 +1,9 @@
 package main
 
-import "github.com/docopt/docopt-go"
+import (
+	"github.com/docopt/docopt-go"
+	"github.com/eugene-eeo/psync/commands"
+)
 
 func main() {
 	usage := `usage:
@@ -9,16 +12,18 @@ func main() {
 	psync get <addr> <hashlist>`
 	arguments, _ := docopt.Parse(usage, nil, true, "psync 0.1", false)
 	if arguments["up"].(bool) {
-		Serve(arguments["<addr>"].(string))
+		commands.Serve(arguments["<addr>"].(string))
 		return
 	}
 	if arguments["export"].(bool) {
-		Export(arguments["<filename>"].(string))
+		commands.Export(arguments["<filename>"].(string))
+		return
 	}
 	if arguments["get"].(bool) {
-		Get(
+		commands.Get(
 			arguments["<addr>"].(string),
 			arguments["<hashlist>"].(string),
 		)
+		return
 	}
 }
