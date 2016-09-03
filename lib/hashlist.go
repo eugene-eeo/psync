@@ -3,8 +3,20 @@ package lib
 import (
 	"os"
 	"io"
+	"bufio"
 	"path/filepath"
 )
+
+func ParseHashList(r io.Reader, fn func(Checksum)) {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) == 0 {
+			break
+		}
+		fn(Checksum(line))
+	}
+}
 
 type HashList []Checksum
 
