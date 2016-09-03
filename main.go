@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/docopt/docopt-go"
 	"github.com/eugene-eeo/psync/commands"
+	"github.com/eugene-eeo/psync/lib"
 )
 
 func main() {
@@ -10,6 +11,7 @@ func main() {
 	psync up <addr>
 	psync export <filename>
 	psync get <addr> <hashlist>`
+	lib.InitHome()
 	arguments, _ := docopt.Parse(usage, nil, true, "psync 0.1", false)
 	if arguments["up"].(bool) {
 		commands.Serve(arguments["<addr>"].(string))
