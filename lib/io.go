@@ -3,7 +3,6 @@ package lib
 import (
 	"io"
 	"bufio"
-	"strings"
 )
 
 func Chunked(r io.Reader, fn func([]byte, error)) {
@@ -18,10 +17,9 @@ func Chunked(r io.Reader, fn func([]byte, error)) {
 }
 
 func ParseHashList(r io.Reader, fn func(Checksum)) {
-	src := bufio.NewReader(r)
-	for {
-		line, _ := src.ReadString('\n')
-		line = strings.TrimRight(line, "\n")
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()
 		if len(line) == 0 {
 			break
 		}
