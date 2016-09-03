@@ -19,31 +19,37 @@ type response struct {
 }
 
 func fetchBlock(requests <-chan *request, responses chan<- *response, done chan<- bool) {
+	all_ok := true
 	for req := range requests {
 		resp, body, errors := gorequest.New().Get(req.url).EndBytes()
 		if len(errors) != 0 || resp.StatusCode != 200 {
-			log.Fatal("cannot fetch block: ", req.checksum)
+			log.Println("cannot fetch block: ", req.checksum)
+			all_ok = false
+			continue
 		}
 		responses <- &response{
 			checksum: req.checksum,
 			block:    lib.NewBlock(body),
 		}
 	}
-	done <- true
+	done <- all_ok
 }
 
 func writeBlocks(responses <-chan *response, done chan<- bool) {
 	root := lib.BlocksDir()
+	all_ok := true
 	for b := range responses {
 		if b.checksum != b.block.Checksum {
-			log.Fatal("invalid block: ", b.checksum)
+			log.Println("invalid block: ", b.checksum)
+			all_ok = false
+			continue
 		}
 		f, err := os.Create(filepath.Join(root, string(b.checksum)))
 		CheckError(err)
 		b.block.WriteTo(f)
 		f.Close()
 	}
-	done <- true
+	done <- all_ok
 }
 
 func Get(addr string, hashlist_path string, force bool) {
@@ -75,10 +81,16 @@ func Get(addr string, hashlist_path string, force bool) {
 		close(requests)
 	}()
 
+	all_ok := true
 	go writeBlocks(responses, write_done)
 	for i := 0; i < 10; i++ {
-		<-fetch_done
+		fetch_ok := <-fetch_done
+		all_ok = all_ok && fetch_ok
 	}
 	close(responses)
-	<-write_done
+	write_ok := <-write_done
+	all_ok = all_ok && write_ok
+	if !all_ok {
+		os.Exit(1)
+	}
 }
