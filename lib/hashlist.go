@@ -24,8 +24,11 @@ func (h *HashList) Resolve(fn func (io.Reader, error) error) {
 			fn(nil, err)
 			break
 		}
-		fn(f, nil)
+		err = fn(f, nil)
 		f.Close()
+		if err != nil {
+			break
+		}
 	}
 }
 

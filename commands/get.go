@@ -67,7 +67,6 @@ func Get(addr string, hashlist_path string, force bool) {
 
 	go func() {
 		for _, checksum := range missing {
-			log.Print(checksum)
 			requests <- &request{
 				url: addr + "/" + string(checksum),
 				checksum: checksum,

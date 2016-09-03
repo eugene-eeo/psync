@@ -10,7 +10,8 @@ server that serves some blocks (8192-byte chunks):
 
 and then others will get data from your servers if they find you:
 
-    $ pysnc get localhost:8000 image.png.hashlist > image.png.2
+    $ pysnc get localhost:8000 image.png.hashlist
+    $ psync glue image.png.hashlist > image.png.2
 
 there will be no mechanism for hashlist distribution, because you and
 I may differ on what `image.png` means. If I manage to convince myself
