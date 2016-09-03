@@ -4,74 +4,82 @@ import (
 	"os"
 	"log"
 	"path/filepath"
-	"github.com/parnurzeal/gorequest"
 	"github.com/eugene-eeo/psync/lib"
+	"github.com/parnurzeal/gorequest"
 )
 
-type blob struct {
-	expected lib.Checksum
-	data     []byte
+type request struct {
+	url      string
+	checksum lib.Checksum
 }
 
-func fetchBlock(addr string, hashes <-chan lib.Checksum, blobs chan<- *blob, done chan<- bool) {
-	for checksum := range hashes {
-		resp, body, errors := gorequest.New().
-			Get(addr + "/" + string(checksum)).
-			EndBytes()
+type response struct {
+	checksum lib.Checksum
+	block    *lib.Block
+}
+
+func fetchBlock(requests <-chan *request, responses chan<- *response, done chan<- bool) {
+	for req := range requests {
+		resp, body, errors := gorequest.New().Get(req.url).EndBytes()
 		if len(errors) != 0 || resp.StatusCode != 200 {
-			log.Fatal("cannot fetch block: ", checksum)
+			log.Fatal("cannot fetch block: ", req.checksum)
 		}
-		blobs <- &blob{
-			expected: checksum,
-			data: body,
+		responses <- &response{
+			checksum: req.checksum,
+			block:    lib.NewBlock(body),
 		}
 	}
 	done <- true
 }
 
-func writeBlobs(blobs <-chan *blob, done chan<- bool) {
+func writeBlocks(responses <-chan *response, done chan<- bool) {
 	root := lib.BlocksDir()
-	for b := range blobs {
-		block := lib.NewBlock(b.data)
-		if block.Checksum != b.expected {
-			log.Fatal("invalid block: ", b.expected)
+	for b := range responses {
+		if b.checksum != b.block.Checksum {
+			log.Fatal("invalid block: ", b.checksum)
 		}
-		f, err := os.Create(filepath.Join(root, string(b.expected)))
+		f, err := os.Create(filepath.Join(root, string(b.checksum)))
 		CheckError(err)
-		block.WriteTo(f)
+		b.block.WriteTo(f)
+		f.Close()
 	}
 	done <- true
 }
 
-func Get(addr string, hashlist_path string) {
+func Get(addr string, hashlist_path string, force bool) {
 	f, err := os.Open(hashlist_path)
 	CheckError(err)
+	hashlist := lib.NewHashList(f)
 
-	num_workers := 10
+	requests := make(chan *request, 10)
+	responses := make(chan *response, 10)
+	fetch_done := make(chan bool)
+	write_done := make(chan bool)
 
-	hashes := make(chan lib.Checksum, num_workers)
-	blobs := make(chan *blob, num_workers)
-	worker_done := make(chan bool)
-	writer_done := make(chan bool)
-
-	for i := 0; i < num_workers; i++ {
-		go fetchBlock(addr, hashes, blobs, worker_done)
+	var missing []lib.Checksum = *hashlist
+	if !force {
+		missing = hashlist.Missing()
 	}
-	go writeBlobs(blobs, writer_done)
+
+	for i := 0; i < 10; i++ {
+		go fetchBlock(requests, responses, fetch_done)
+	}
 
 	go func() {
-		lib.ParseHashList(f, func(hash lib.Checksum) {
-			//_, err := os.Stat(filepath.Join(root, string(hash)));
-			//if err != nil {
-			hashes <- hash
-			//}
-		})
-		close(hashes)
+		for _, checksum := range missing {
+			log.Print(checksum)
+			requests <- &request{
+				url: addr + "/" + string(checksum),
+				checksum: checksum,
+			}
+		}
+		close(requests)
 	}()
 
-	for i := 0; i < num_workers; i++ {
-		<-worker_done
+	go writeBlocks(responses, write_done)
+	for i := 0; i < 10; i++ {
+		<-fetch_done
 	}
-	close(blobs)
-	<-writer_done
+	close(responses)
+	<-write_done
 }

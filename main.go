@@ -10,7 +10,7 @@ func main() {
 	usage := `usage:
 	psync up <addr>
 	psync export <filename>
-	psync get <addr> <hashlist>`
+	psync get [--force] <addr> <hashlist>`
 	lib.InitHome()
 	arguments, _ := docopt.Parse(usage, nil, true, "psync 0.1", false)
 	if arguments["up"].(bool) {
@@ -25,6 +25,7 @@ func main() {
 		commands.Get(
 			arguments["<addr>"].(string),
 			arguments["<hashlist>"].(string),
+			arguments["--force"].(bool),
 		)
 		return
 	}
