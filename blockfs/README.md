@@ -12,9 +12,12 @@ import "github.com/eugene-eeo/psync/blockfs"
 func main() {
     f, _ := os.Open("/external/image.png")
     fs := blockfs.NewFS(".")
-    hashlist := fs.ExportNamed(f, "my-image")
-    for _, chunk := range hashlist.Resolve() {
-        chunk.WriteTo(os.Stdout)
+    hashlist, _ := fs.ExportNamed(f, "my-image")
+    for _, checksum := range hashlist {
+        block, err := fs.GetBlock(checksum)
+        if err != nil {
+            block.WriteTo(os.Stdout)
+        }
     }
 }
 ```
