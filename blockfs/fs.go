@@ -2,6 +2,7 @@ package blockfs
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -23,12 +24,19 @@ func NewFS(path string) *FS {
 }
 
 func (fs *FS) WriteBlock(b *Block) error {
-	f, err := os.Create(filepath.Join(fs.Path, BLOCKS_DIR, string(b.Checksum)))
+	tmp, err := ioutil.TempFile("", "")
 	if err != nil {
 		return err
 	}
-	_, err = b.WriteTo(f)
-	return err
+	_, err = b.WriteTo(tmp)
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(fs.Path, BLOCKS_DIR, string(b.Checksum))
+	return os.Link(
+		tmp.Name(),
+		path,
+	)
 }
 
 func (fs *FS) Export(r io.Reader) (*HashList, error) {
