@@ -28,6 +28,7 @@ func (fs *FS) WriteBlock(b *Block) error {
 	if err != nil {
 		return err
 	}
+	defer os.Remove(tmp.Name())
 	_, err = b.WriteTo(tmp)
 	if err != nil {
 		return err
