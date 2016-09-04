@@ -1,9 +1,9 @@
 # blockfs
 
 A very simple layer over hashlists and blocks. Manages a simple directory of
-blocks (2MB chunks of data+checksum) and named hashlists. It is a lower level
-library. Usage example for storing an external image into the system and
-piping the chunks into stdout:
+blocks (2MB chunks of data+checksum) and named hashlists. Usage example for
+storing an external image into the store, saving the checksums into a hashlist,
+and piping the chunks into stdout:
 
 ```
 import "os"
