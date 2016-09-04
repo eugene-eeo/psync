@@ -35,14 +35,14 @@ func (fs *FS) Export(r io.Reader) (*HashList, error) {
 	hashes := HashList{}
 	buffer := make([]byte, BLOCK_SIZE)
 	for {
-		bits, err := r.Read(buffer)
-		if bits == 0 {
+		length, err := r.Read(buffer)
+		if length == 0 {
 			break
 		}
 		if err != nil && err != io.EOF {
 			return nil, err
 		}
-		b := NewBlock(buffer[:bits])
+		b := NewBlock(buffer[:length])
 		fs.WriteBlock(b)
 		hashes = append(hashes, b.Checksum)
 	}
