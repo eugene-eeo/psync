@@ -16,6 +16,7 @@ type FS struct {
 
 func NewFS(path string) *FS {
 	os.MkdirAll(filepath.Join(path, BLOCKS_DIR), 0755)
+	os.MkdirAll(filepath.Join(path, TAGS_DIR), 0755)
 	return &FS{
 		Path: path,
 	}
