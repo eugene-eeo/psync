@@ -48,7 +48,7 @@ func (fs *FS) Export(r io.Reader) (*HashList, error) {
 		if block == nil {
 			break
 		}
-		if err != nil {
+		if err != nil && err != io.EOF {
 			return nil, err
 		}
 		fs.WriteBlock(block)

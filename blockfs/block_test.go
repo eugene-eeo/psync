@@ -84,7 +84,8 @@ type ErrorStream struct {
 }
 
 func (e *ErrorStream) Read(data []byte) (int, error) {
-	return 0, e.Error
+	data[0] = 1
+	return 1, e.Error
 }
 
 func TestBlockStreamError(t *testing.T) {
@@ -93,9 +94,8 @@ func TestBlockStreamError(t *testing.T) {
 	}
 	stream := blockfs.BlockStream(&errstream)
 	block, err := stream()
-	t.Log(err)
-	if block != nil {
-		t.Error("expected block to be nil")
+	if block.Data[0] != 1 {
+		t.Error("expected first byte to be written")
 	}
 	if err == nil {
 		t.Error("expected error to equal", errstream.Error)
