@@ -9,7 +9,7 @@ import (
 
 const TAGS_DIR   string = "tags"
 const BLOCKS_DIR string = "blocks"
-const BLOCK_SIZE int = 1024 * 1024
+const BLOCK_SIZE int = 1024 * 1024 * 2
 
 type FS struct {
 	Path string
