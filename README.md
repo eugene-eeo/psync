@@ -54,9 +54,15 @@ since you don't have to download the *entire* file again, and you
 can download files from potentially untrusted sources - the only
 trusted thing is the hashlist.
 
+## dev
+
+currently development is on the [blockfs](https://github.com/eugene-eeo/psync/tree/blockfs/blockfs)
+branch. If you'd like to help out please work on that branch
+instead.
+
 ## todo
 
+ - finish blockfs subproject
  - come up with method for peer sharing
  - gossip protocol for block discovery
  - use sqlite for stats storage
- - change block size to 1MB
