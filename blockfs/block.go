@@ -1,9 +1,9 @@
 package blockfs
 
 import (
-	"io"
 	"crypto/sha256"
 	"encoding/hex"
+	"io"
 )
 
 type Checksum string
@@ -20,7 +20,7 @@ func NewChecksum(data []byte) Checksum {
 func NewBlock(data []byte) *Block {
 	return &Block{
 		Checksum: NewChecksum(data),
-		Data: data,
+		Data:     data,
 	}
 }
 

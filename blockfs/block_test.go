@@ -1,16 +1,16 @@
 package blockfs_test
 
 import (
-	"math/rand"
+	"bytes"
 	"github.com/eugene-eeo/psync/blockfs"
+	"math/rand"
+	"reflect"
 	"testing"
 	"testing/quick"
-	"reflect"
-	"bytes"
 )
 
 type Params struct {
-	Data []byte
+	Data  []byte
 	Block *blockfs.Block
 }
 
@@ -20,14 +20,14 @@ func (p *Params) Generate(r *rand.Rand, size int) reflect.Value {
 	block := blockfs.NewBlock(buff)
 	return reflect.ValueOf(&Params{
 		Block: block,
-		Data: buff,
+		Data:  buff,
 	})
 }
 
 func TestBlockChecksum(t *testing.T) {
-	assertion := func (p *Params) bool {
+	assertion := func(p *Params) bool {
 		return len(p.Block.Checksum) == 64 &&
-			   bytes.Equal(p.Data, p.Block.Data)
+			bytes.Equal(p.Data, p.Block.Data)
 	}
 	if err := quick.Check(assertion, nil); err != nil {
 		t.Error(err)
@@ -35,7 +35,7 @@ func TestBlockChecksum(t *testing.T) {
 }
 
 func TestBlockWriteTo(t *testing.T) {
-	assertion := func (p *Params) bool {
+	assertion := func(p *Params) bool {
 		b := bytes.NewBuffer([]byte{})
 		p.Block.WriteTo(b)
 		return bytes.Equal(b.Bytes(), p.Data)
