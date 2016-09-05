@@ -42,17 +42,18 @@ func (fs *FS) WriteBlock(b *Block) error {
 
 func (fs *FS) Export(r io.Reader) (*HashList, error) {
 	hashes := HashList{}
-	stream := BlockStream(r)
+	buffer := make([]byte, BLOCK_SIZE)
 	for {
-		block, err := stream()
-		if block == nil {
+		length, err := r.Read(buffer)
+		if length == 0 {
 			break
 		}
 		if err != nil && err != io.EOF {
-			return nil, err
+			return &hashes, err
 		}
-		fs.WriteBlock(block)
-		hashes = append(hashes, block.Checksum)
+		b := NewBlock(buffer[:length])
+		fs.WriteBlock(b)
+		hashes = append(hashes, b.Checksum)
 	}
 	return &hashes, nil
 }
