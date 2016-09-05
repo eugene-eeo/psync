@@ -59,14 +59,17 @@ func (fs *FS) Export(r io.Reader) (*HashList, error) {
 }
 
 func (fs *FS) ExportNamed(r io.Reader, name string) (*HashList, error) {
-	f, err := os.Create(filepath.Join(fs.Path, TAGS_DIR, name))
+	tmp, err := ioutil.TempFile("", "")
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
-	hl, err := fs.Export(r)	
-	hl.WriteTo(f)
-	return hl, err
+	defer os.Remove(tmp.Name())
+	hl, err := fs.Export(r)
+	hl.WriteTo(tmp)
+	return hl, os.Link(
+		tmp.Name(),
+		filepath.Join(fs.Path, TAGS_DIR, name),
+	)
 }
 
 func (fs *FS) GetBlock(c Checksum) (*Block, error) {
