@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 )
 
-const TAGS_DIR   string = "tags"
 const BLOCKS_DIR string = "blocks"
 const BLOCK_SIZE int = 1024 * 1024 * 2
 
@@ -17,7 +16,6 @@ type FS struct {
 
 func NewFS(path string) *FS {
 	os.MkdirAll(filepath.Join(path, BLOCKS_DIR), 0755)
-	os.MkdirAll(filepath.Join(path, TAGS_DIR), 0755)
 	return &FS{
 		Path: path,
 	}
@@ -56,20 +54,6 @@ func (fs *FS) Export(r io.Reader) (*HashList, error) {
 		hashes = append(hashes, b.Checksum)
 	}
 	return &hashes, nil
-}
-
-func (fs *FS) ExportNamed(r io.Reader, name string) (*HashList, error) {
-	tmp, err := ioutil.TempFile("", "")
-	if err != nil {
-		return nil, err
-	}
-	defer os.Remove(tmp.Name())
-	hl, err := fs.Export(r)
-	hl.WriteTo(tmp)
-	return hl, os.Link(
-		tmp.Name(),
-		filepath.Join(fs.Path, TAGS_DIR, name),
-	)
 }
 
 func (fs *FS) GetBlock(c Checksum) (*Block, error) {
