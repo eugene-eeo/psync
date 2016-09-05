@@ -28,3 +28,18 @@ func (b *Block) WriteTo(w io.Writer) (int64, error) {
 	wrote, err := w.Write(b.Data)
 	return int64(wrote), err
 }
+
+func BlockStream(r io.Reader) func() (*Block, error) {
+	buffer := make([]byte, BLOCK_SIZE)
+	return func() (*Block, error) {
+		length, err := r.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		if length == 0 {
+			return nil, nil
+		}
+		b := NewBlock(buffer[:length])
+		return b, nil
+	}
+}
