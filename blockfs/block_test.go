@@ -7,7 +7,6 @@ import (
 	"testing/quick"
 	"reflect"
 	"bytes"
-	"fmt"
 )
 
 type Params struct {
