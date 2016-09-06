@@ -38,7 +38,7 @@ func (fs *FS) WriteBlock(b *Block) error {
 	)
 }
 
-func (fs *FS) Export(r io.Reader) (*HashList, error) {
+func (fs *FS) Export(r io.Reader) (HashList, error) {
 	hashes := HashList{}
 	buffer := make([]byte, BlockSize)
 	for {
@@ -47,13 +47,13 @@ func (fs *FS) Export(r io.Reader) (*HashList, error) {
 			break
 		}
 		if err != nil && err != io.EOF {
-			return &hashes, err
+			return hashes, err
 		}
 		b := NewBlock(buffer[:length])
 		fs.WriteBlock(b)
 		hashes = append(hashes, b.Checksum)
 	}
-	return &hashes, nil
+	return hashes, nil
 }
 
 func (fs *FS) GetBlock(c Checksum) (*Block, error) {
