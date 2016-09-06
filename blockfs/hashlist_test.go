@@ -20,4 +20,9 @@ func TestHashListWriteTo(t *testing.T) {
 	if total != (3+1)*3 {
 		t.Error("expected 12 bytes to be written, got", total)
 	}
+	given := b.Bytes()
+	expected := []byte("abc\ndef\nghi\n")
+	if !bytes.Equal(expected, given) {
+		t.Error("expected written contents to equal", expected, "got", given)
+	}
 }
