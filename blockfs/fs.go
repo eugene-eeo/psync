@@ -7,15 +7,15 @@ import (
 	"path/filepath"
 )
 
-const BLOCKS_DIR string = "blocks"
-const BLOCK_SIZE int = 1024 * 1024 * 2
+const BlocksDir string = "blocks"
+const BlockSize int = 1024 * 1024 * 2
 
 type FS struct {
 	Path string
 }
 
 func NewFS(path string) *FS {
-	os.MkdirAll(filepath.Join(path, BLOCKS_DIR), 0755)
+	os.MkdirAll(filepath.Join(path, BlocksDir), 0755)
 	return &FS{
 		Path: path,
 	}
@@ -31,7 +31,7 @@ func (fs *FS) WriteBlock(b *Block) error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(fs.Path, BLOCKS_DIR, string(b.Checksum))
+	path := filepath.Join(fs.Path, BlocksDir, string(b.Checksum))
 	return os.Link(
 		tmp.Name(),
 		path,
@@ -40,7 +40,7 @@ func (fs *FS) WriteBlock(b *Block) error {
 
 func (fs *FS) Export(r io.Reader) (*HashList, error) {
 	hashes := HashList{}
-	buffer := make([]byte, BLOCK_SIZE)
+	buffer := make([]byte, BlockSize)
 	for {
 		length, err := r.Read(buffer)
 		if length == 0 {
@@ -57,12 +57,12 @@ func (fs *FS) Export(r io.Reader) (*HashList, error) {
 }
 
 func (fs *FS) GetBlock(c Checksum) (*Block, error) {
-	f, err := os.Open(filepath.Join(fs.Path, BLOCKS_DIR, string(c)))
+	f, err := os.Open(filepath.Join(fs.Path, BlocksDir, string(c)))
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	b := make([]byte, BLOCK_SIZE)
+	b := make([]byte, BlockSize)
 	_, err = f.Read(b)
 	if err != nil {
 		return nil, err
