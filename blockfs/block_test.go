@@ -2,12 +2,24 @@ package blockfs_test
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"github.com/eugene-eeo/psync/blockfs"
 	"math/rand"
 	"reflect"
 	"testing"
 	"testing/quick"
 )
+
+func TestChecksum(t *testing.T) {
+	data := []byte("abc")
+	c := blockfs.NewChecksum(data)
+	b := sha256.Sum256(data)
+	h := hex.EncodeToString(b[:])
+	if h != string(c) {
+		t.Error("expected NewChecksum('abc') ==", h, "got", c)
+	}
+}
 
 type Params struct {
 	Data  []byte
