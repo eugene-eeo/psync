@@ -40,7 +40,7 @@ func TestWriteBlock(t *testing.T) {
 		t.Fail()
 	}
 	b, _ := fs.GetBlock(block.Checksum)
-	if !bytes.Equal(b.Data[:len(data)], data) {
+	if !bytes.Equal(b.Data, data) {
 		t.Error("expected data to equal", data, "got", b.Data)
 	}
 	if b.Checksum != block.Checksum {
