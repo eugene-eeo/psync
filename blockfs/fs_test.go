@@ -44,8 +44,6 @@ func TestWriteBlock(t *testing.T) {
 		t.Error("expected data to equal", data, "got", b.Data)
 	}
 	if b.Checksum != block.Checksum {
-		t.Log(b.Checksum)
-		t.Log(block.Checksum)
 		t.Error("expected checksum to equal", block.Checksum, "got", b.Checksum)
 	}
 }

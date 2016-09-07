@@ -46,12 +46,12 @@ func (fs *FS) Export(r io.Reader) (HashList, error) {
 		if length == 0 {
 			break
 		}
-		if err != nil && err != io.EOF {
-			return hashes, err
-		}
 		b := NewBlock(buffer[:length])
 		fs.WriteBlock(b)
 		hashes = append(hashes, b.Checksum)
+		if err != nil && err != io.EOF {
+			return hashes, err
+		}
 	}
 	return hashes, nil
 }
