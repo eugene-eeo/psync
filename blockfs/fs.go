@@ -63,9 +63,9 @@ func (fs *FS) GetBlock(c Checksum) (*Block, error) {
 	}
 	defer f.Close()
 	b := make([]byte, BlockSize)
-	_, err = f.Read(b)
+	length, err := f.Read(b)
 	if err != nil {
 		return nil, err
 	}
-	return NewBlock(b), nil
+	return NewBlock(b[:length]), nil
 }
