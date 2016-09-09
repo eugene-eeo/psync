@@ -1,13 +1,21 @@
 package commands
 
 import (
-	"github.com/gin-gonic/gin"
+	"os"
+	"log"
+	"net/http"
 	"path/filepath"
+	"github.com/gorilla/handlers"
 )
 
 func Serve(addr string) {
-	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
-	r.Static("/", filepath.Join(fs.Path, "blocks"))
-	CheckError(r.Run(addr))
+	path := filepath.Join(fs.Path, "blocks")
+
+	r := http.NewServeMux()
+	r.Handle("/", handlers.LoggingHandler(
+		os.Stdout,
+		http.FileServer(http.Dir(path)),
+	))
+
+	log.Fatal(http.ListenAndServe(addr, handlers.CompressHandler(r)))
 }
