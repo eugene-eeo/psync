@@ -73,7 +73,7 @@ func Get(addr string, hashlist_path string, force bool) {
 		go fetchBlock(requests, responses, fetch_done)
 	}
 
-	if !strings.HasPrefix(addr, "http") {
+	if !strings.HasPrefix(addr, "http://") {
 		addr = "http://" + addr
 	}
 
