@@ -10,7 +10,5 @@ func Export(filename string) {
 	defer f.Close()
 	hashlist, err := fs.Export(f)
 	CheckError(err)
-	for _, checksum := range hashlist {
-		os.Stdout.WriteString(string(checksum) + "\n")
-	}
+	hashlist.WriteTo(os.Stdout)
 }

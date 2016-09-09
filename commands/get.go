@@ -3,6 +3,7 @@ package commands
 import (
 	"os"
 	"log"
+	"strings"
 	"path/filepath"
 	"github.com/eugene-eeo/psync/blockfs"
 	"github.com/parnurzeal/gorequest"
@@ -63,18 +64,17 @@ func Get(addr string, hashlist_path string, force bool) {
 	fetch_done := make(chan bool)
 	write_done := make(chan bool)
 
-	var missing []blockfs.Checksum = hashlist
+	missing := hashlist
 	if !force {
-		missing = []blockfs.Checksum{}
-		for _, checksum := range hashlist {
-			if !fs.Exists(checksum) {
-				missing = append(missing, checksum)
-			}
-		}
+		missing = fs.MissingBlocks(hashlist)
 	}
 
 	for i := 0; i < 10; i++ {
 		go fetchBlock(requests, responses, fetch_done)
+	}
+
+	if !strings.HasPrefix(addr, "http") {
+		addr = "http://" + addr
 	}
 
 	go func() {

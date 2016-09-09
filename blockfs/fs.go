@@ -77,3 +77,13 @@ func (fs *FS) Exists(c Checksum) bool {
 	}
 	return true
 }
+
+func (fs *FS) MissingBlocks(h HashList) HashList {
+	missing := HashList{}
+	for _, checksum := range h {
+		if !fs.Exists(checksum) {
+			missing = append(missing, checksum)
+		}
+	}
+	return missing
+}
