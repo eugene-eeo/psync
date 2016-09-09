@@ -4,18 +4,18 @@ import (
 	"os"
 	"log"
 	"path/filepath"
-	"github.com/eugene-eeo/psync/lib"
+	"github.com/eugene-eeo/psync/blockfs"
 	"github.com/parnurzeal/gorequest"
 )
 
 type request struct {
 	url      string
-	checksum lib.Checksum
+	checksum blockfs.Checksum
 }
 
 type response struct {
-	checksum lib.Checksum
-	block    *lib.Block
+	checksum blockfs.Checksum
+	block    *blockfs.Block
 }
 
 func fetchBlock(requests <-chan *request, responses chan<- *response, done chan<- bool) {
@@ -29,14 +29,14 @@ func fetchBlock(requests <-chan *request, responses chan<- *response, done chan<
 		}
 		responses <- &response{
 			checksum: req.checksum,
-			block:    lib.NewBlock(body),
+			block:    blockfs.NewBlock(body),
 		}
 	}
 	done <- all_ok
 }
 
 func writeBlocks(responses <-chan *response, done chan<- bool) {
-	root := lib.BlocksDir()
+	root := filepath.Join(fs.Path, "blocks")
 	all_ok := true
 	for b := range responses {
 		if b.checksum != b.block.Checksum {
@@ -55,16 +55,22 @@ func writeBlocks(responses <-chan *response, done chan<- bool) {
 func Get(addr string, hashlist_path string, force bool) {
 	f, err := os.Open(hashlist_path)
 	CheckError(err)
-	hashlist := lib.NewHashList(f)
+	hashlist, err := blockfs.NewHashList(f)
+	CheckError(err)
 
 	requests := make(chan *request, 10)
 	responses := make(chan *response, 10)
 	fetch_done := make(chan bool)
 	write_done := make(chan bool)
 
-	var missing []lib.Checksum = *hashlist
+	var missing []blockfs.Checksum = hashlist
 	if !force {
-		missing = hashlist.Missing()
+		missing = []blockfs.Checksum{}
+		for _, checksum := range hashlist {
+			if !fs.Exists(checksum) {
+				missing = append(missing, checksum)
+			}
+		}
 	}
 
 	for i := 0; i < 10; i++ {

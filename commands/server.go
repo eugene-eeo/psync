@@ -2,13 +2,12 @@ package commands
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/eugene-eeo/psync/lib"
+	"path/filepath"
 )
 
 func Serve(addr string) {
-	root := lib.BlocksDir()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.Static("/", root)
+	r.Static("/", filepath.Join(fs.Path, "blocks"))
 	CheckError(r.Run(addr))
 }

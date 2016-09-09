@@ -69,3 +69,11 @@ func (fs *FS) GetBlock(c Checksum) (*Block, error) {
 	}
 	return NewBlock(b[:length]), nil
 }
+
+func (fs *FS) Exists(c Checksum) bool {
+	_, err := os.Stat(filepath.Join(fs.Path, BlocksDir, string(c)))
+	if err != nil {
+		return false
+	}
+	return true
+}
