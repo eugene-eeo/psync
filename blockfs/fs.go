@@ -32,10 +32,7 @@ func (fs *FS) WriteBlock(b *Block) error {
 		return err
 	}
 	path := filepath.Join(fs.Path, BlocksDir, string(b.Checksum))
-	return os.Link(
-		tmp.Name(),
-		path,
-	)
+	return os.Link(tmp.Name(), path)
 }
 
 func (fs *FS) Export(r io.Reader) (HashList, error) {
