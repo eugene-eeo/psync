@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
@@ -25,17 +26,26 @@ func export(fs *blockfs.FS, filename string) {
 	hashlist.WriteTo(os.Stdout)
 }
 
-func glue(fs *blockfs.FS, filename string) {
+func glue(fs *blockfs.FS, filename string, verify bool) {
 	f, err := os.Open(filename)
 	checkErr(err)
 	defer f.Close()
 	hashlist, err := blockfs.NewHashList(f)
 	checkErr(err)
 	for _, checksum := range hashlist {
-		block, err := fs.GetBlock(checksum)
-		checkErr(err)
-		block.WriteTo(os.Stdout)
+		cat(fs, checksum, verify)
 	}
+}
+
+func cat(fs *blockfs.FS, checksum blockfs.Checksum, verify bool) {
+	block, err := fs.GetBlock(blockfs.Checksum(checksum))
+	checkErr(err)
+	if verify {
+		if block.Checksum != blockfs.NewChecksum(block.Data) {
+			checkErr(errors.New("invalid block: " + string(block.Checksum)))
+		}
+	}
+	block.WriteTo(os.Stdout)
 }
 
 func main() {
@@ -43,13 +53,12 @@ func main() {
 
 Usage:
   psync export <filename>
-  psync glue <hashlist>
-  psync -h | --help
-  psync --version
+  psync glue [--verify] <hashlist>
+  psync cat [--verify] <checksum>
 
 Options:
-  -h --help   Show this screen.
-  --version   Show version.`
+  --verify    Verify block contents.
+  -h --help   Show this screen.`
 	args, _ := docopt.Parse(usage, nil, true, "psync 0.1.0", false)
 	user, err := user.Current()
 	checkErr(err)
@@ -58,6 +67,13 @@ Options:
 		export(fs, args["<filename>"].(string))
 	}
 	if args["glue"].(bool) {
-		glue(fs, args["<hashlist>"].(string))
+		glue(fs, args["<hashlist>"].(string), args["--verify"].(bool))
+	}
+	if args["cat"].(bool) {
+		cat(
+			fs,
+			blockfs.Checksum(args["<checksum>"].(string)),
+			args["--verify"].(bool),
+		)
 	}
 }
