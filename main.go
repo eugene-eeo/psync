@@ -1,37 +1,63 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"os/user"
+	"path/filepath"
+	"github.com/eugene-eeo/psync/blockfs"
 	"github.com/docopt/docopt-go"
-	"github.com/eugene-eeo/psync/commands"
 )
 
+func checkErr(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "psync: ", err)
+		os.Exit(1)
+	}
+}
+
+func export(fs *blockfs.FS, filename string) {
+	f, err := os.Open(filename)
+	checkErr(err)
+	defer f.Close()
+	hashlist, err := fs.Export(f)
+	checkErr(err)
+	hashlist.WriteTo(os.Stdout)
+}
+
+func glue(fs *blockfs.FS, filename string) {
+	f, err := os.Open(filename)
+	checkErr(err)
+	defer f.Close()
+	hashlist, err := blockfs.NewHashList(f)
+	checkErr(err)
+	for _, checksum := range hashlist {
+		block, err := fs.GetBlock(checksum)
+		checkErr(err)
+		block.WriteTo(os.Stdout)
+	}
+}
+
 func main() {
-	usage := `usage:
-	psync up <addr>
-	psync export <filename>
-	psync get [--force] <addr> <hashlist>
-	psync glue <hashlist>
-	`
-	arguments, _ := docopt.Parse(usage, nil, true, "psync 0.1", false)
-	if arguments["up"].(bool) {
-		commands.Serve(arguments["<addr>"].(string))
-		return
+	usage := `Block and hashlist tool.
+
+Usage:
+  psync export <filename>
+  psync glue <hashlist>
+  psync -h | --help
+  psync --version
+
+Options:
+  -h --help   Show this screen.
+  --version   Show version.`
+	args, _ := docopt.Parse(usage, nil, true, "psync 0.1.0", false)
+	user, err := user.Current()
+	checkErr(err)
+	fs := blockfs.NewFS(filepath.Join(user.HomeDir, ".psync"))
+	if args["export"].(bool) {
+		export(fs, args["<filename>"].(string))
 	}
-	if arguments["export"].(bool) {
-		commands.Export(arguments["<filename>"].(string))
-		return
-	}
-	if arguments["get"].(bool) {
-		commands.Get(
-			arguments["<addr>"].(string),
-			arguments["<hashlist>"].(string),
-			arguments["--force"].(bool),
-		)
-		return
-	}
-	if arguments["glue"].(bool) {
-		commands.Glue(
-			arguments["<hashlist>"].(string),
-		)
+	if args["glue"].(bool) {
+		glue(fs, args["<hashlist>"].(string))
 	}
 }
