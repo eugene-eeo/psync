@@ -1,10 +1,10 @@
 package blockfs_test
 
 import (
-	"github.com/eugene-eeo/psync/blockfs"
-	"testing"
 	"bytes"
+	"github.com/eugene-eeo/psync/blockfs"
 	"strings"
+	"testing"
 )
 
 func TestHashListWriteTo(t *testing.T) {

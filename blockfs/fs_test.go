@@ -1,13 +1,13 @@
 package blockfs_test
 
 import (
-	"math/rand"
-	"io/ioutil"
 	"bytes"
-	"path/filepath"
-	"os"
-	"testing"
 	"github.com/eugene-eeo/psync/blockfs"
+	"io/ioutil"
+	"math/rand"
+	"os"
+	"path/filepath"
+	"testing"
 )
 
 func allocTempDir(t *testing.T) string {
@@ -53,7 +53,7 @@ func TestExport(t *testing.T) {
 	defer os.RemoveAll(dirname)
 	fs := blockfs.NewFS(dirname)
 
-	buff := make([]byte, blockfs.BlockSize + blockfs.BlockSize >> 1)
+	buff := make([]byte, blockfs.BlockSize+blockfs.BlockSize>>1)
 	rand.Read(buff)
 	hashlist, err := fs.Export(bytes.NewBuffer(buff))
 

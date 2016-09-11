@@ -3,11 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/docopt/docopt-go"
+	"github.com/eugene-eeo/psync/blockfs"
 	"os"
 	"os/user"
 	"path/filepath"
-	"github.com/eugene-eeo/psync/blockfs"
-	"github.com/docopt/docopt-go"
 )
 
 func checkErr(err error) {
