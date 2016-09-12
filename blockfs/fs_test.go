@@ -21,8 +21,12 @@ func allocTempDir(t *testing.T) string {
 func TestNewFS(t *testing.T) {
 	dirname := allocTempDir(t)
 	defer os.RemoveAll(dirname)
-	_ = blockfs.NewFS(dirname)
-	_, err := os.Stat(filepath.Join(dirname, "blocks"))
+	_, err := blockfs.NewFS(dirname)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
+	_, err = os.Stat(filepath.Join(dirname, "blocks"))
 	if err != nil {
 		t.Error("unexpected error:", err)
 	}
@@ -31,10 +35,14 @@ func TestNewFS(t *testing.T) {
 func TestWriteBlock(t *testing.T) {
 	dirname := allocTempDir(t)
 	defer os.RemoveAll(dirname)
-	fs := blockfs.NewFS(dirname)
+	fs, err := blockfs.NewFS(dirname)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
 	data := []byte("test-data")
 	block := blockfs.NewBlock(data)
-	err := fs.WriteBlock(block)
+	err = fs.WriteBlock(block)
 	if err != nil {
 		t.Error("unexpected error:", err)
 		t.Fail()
@@ -51,7 +59,11 @@ func TestWriteBlock(t *testing.T) {
 func TestExport(t *testing.T) {
 	dirname := allocTempDir(t)
 	defer os.RemoveAll(dirname)
-	fs := blockfs.NewFS(dirname)
+	fs, err := blockfs.NewFS(dirname)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
 
 	buff := make([]byte, blockfs.BlockSize+blockfs.BlockSize>>1)
 	rand.Read(buff)
