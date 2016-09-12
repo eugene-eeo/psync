@@ -62,7 +62,8 @@ Options:
 	args, _ := docopt.Parse(usage, nil, true, "psync 0.1.0", false)
 	user, err := user.Current()
 	checkErr(err)
-	fs := blockfs.NewFS(filepath.Join(user.HomeDir, ".psync"))
+	fs, err := blockfs.NewFS(filepath.Join(user.HomeDir, ".psync"))
+	checkErr(err)
 	if args["export"].(bool) {
 		export(fs, args["<filename>"].(string))
 	}
