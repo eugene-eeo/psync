@@ -50,4 +50,7 @@ func TestNewHashList(t *testing.T) {
 			)
 		}
 	}
+	if len(hl) != 3 {
+		t.Error("expected 3 hashes, got", len(hl))
+	}
 }
