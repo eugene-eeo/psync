@@ -17,20 +17,14 @@ func checkErr(err error) {
 	}
 }
 
-func export(fs *blockfs.FS, filename string) {
-	f, err := os.Open(filename)
-	checkErr(err)
-	defer f.Close()
-	hashlist, err := fs.Export(f)
+func export(fs *blockfs.FS) {
+	hashlist, err := fs.Export(os.Stdin)
 	checkErr(err)
 	hashlist.WriteTo(os.Stdout)
 }
 
-func glue(fs *blockfs.FS, filename string, verify bool) {
-	f, err := os.Open(filename)
-	checkErr(err)
-	defer f.Close()
-	hashlist, err := blockfs.NewHashList(f)
+func glue(fs *blockfs.FS, verify bool) {
+	hashlist, err := blockfs.NewHashList(os.Stdin)
 	checkErr(err)
 	for _, checksum := range hashlist {
 		cat(fs, checksum, verify)
@@ -52,8 +46,8 @@ func main() {
 	usage := `Block and hashlist tool.
 
 Usage:
-  psync export <filename>
-  psync glue [--verify] <hashlist>
+  psync export
+  psync glue [--verify]
   psync cat [--verify] <checksum>
 
 Options:
@@ -65,10 +59,10 @@ Options:
 	fs, err := blockfs.NewFS(filepath.Join(user.HomeDir, ".psync"))
 	checkErr(err)
 	if args["export"].(bool) {
-		export(fs, args["<filename>"].(string))
+		export(fs)
 	}
 	if args["glue"].(bool) {
-		glue(fs, args["<hashlist>"].(string), args["--verify"].(bool))
+		glue(fs, args["--verify"].(bool))
 	}
 	if args["cat"].(bool) {
 		cat(

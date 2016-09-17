@@ -17,7 +17,7 @@ type FS struct {
 func NewFS(path string) (*FS, error) {
 	os.Mkdir(path, 0755)
 	err := os.Mkdir(filepath.Join(path, BlocksDir), 0755)
-	if err != nil {
+	if err != nil && !os.IsExist(err) {
 		return nil, err
 	}
 	fs := FS{Path: path}
