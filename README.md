@@ -1,7 +1,7 @@
 # psync
 
 p2p block distribution service thing. you can choose to run a
-server that serves some blocks (8192-byte chunks):
+server that serves some blocks (2MB chunks of data):
 
     $ cat image.png | psync export | tee image.png.hashlist
     ba7816bf...
