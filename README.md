@@ -20,8 +20,8 @@ to a solution, maybe a checksum of hashlists then I will implement it.
 ## wat
 
 at its core psync is a tool for resolving hashlists. say you have
-a file, `image.png` which you split into blocks of 8192 bytes and
-hash them: (the checksums are shortened for brevity)
+a file, `image.png` which you split into blocks and hash them: (the
+checksums are shortened for brevity)
 
 | hash       | contents            |
 |:----------:|---------------------|
@@ -30,7 +30,7 @@ hash them: (the checksums are shortened for brevity)
 
 the hashes on the left are used to make a hashlist (same order as
 above) that you share with your friend. when your friend wants to
-download the file:
+download the file he/she:
 
 1. make requests to some server for the all the chunks.
 
