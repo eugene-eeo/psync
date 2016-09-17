@@ -2,12 +2,11 @@
 
 @test "gluing exported file produces same output" {
     diff \
-        <(cat main.go | ./psync export | ./psync glue --verify) \
-        <(cat main.go)
-    [ "$?" -eq 0 ]
+        <(cat ./psync | ./psync export | ./psync glue --verify) \
+        <(cat ./psync)
 }
 
-@test "directory exists with blocks" {
+@test "blocks/<checksum> files exist" {
     hashlist=$(cat main.go | ./psync export)
     for line in $(echo $hashlist)
     do
