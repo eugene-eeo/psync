@@ -3,15 +3,15 @@
 p2p block distribution service thing. you can choose to run a
 server that serves some blocks (8192-byte chunks):
 
-    $ psync export image.png | tee image.png.hashlist
+    $ cat image.png | psync export | tee image.png.hashlist
     ba7816bf...
     cb8379ac...
     $ psync up localhost:8000
 
 and then others will get data from your servers if they find you:
 
-    $ pysnc get localhost:8000 image.png.hashlist
-    $ psync glue image.png.hashlist > image.png.2
+    $ cat image.png.hashlist | pysnc get 'http://localhost:8000'
+    $ cat image.png.hashlist | psync glue > image.png.2
 
 there will be no mechanism for hashlist distribution, because you and
 I may differ on what `image.png` means. If I manage to convince myself
