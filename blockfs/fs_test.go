@@ -1,13 +1,13 @@
 package blockfs_test
 
 import (
-	"math/rand"
-	"io/ioutil"
 	"bytes"
-	"path/filepath"
-	"os"
-	"testing"
 	"github.com/eugene-eeo/psync/blockfs"
+	"io/ioutil"
+	"math/rand"
+	"os"
+	"path/filepath"
+	"testing"
 )
 
 func allocTempDir(t *testing.T) string {
@@ -21,8 +21,12 @@ func allocTempDir(t *testing.T) string {
 func TestNewFS(t *testing.T) {
 	dirname := allocTempDir(t)
 	defer os.RemoveAll(dirname)
-	_ = blockfs.NewFS(dirname)
-	_, err := os.Stat(filepath.Join(dirname, "blocks"))
+	_, err := blockfs.NewFS(dirname)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
+	_, err = os.Stat(filepath.Join(dirname, "blocks"))
 	if err != nil {
 		t.Error("unexpected error:", err)
 	}
@@ -31,10 +35,20 @@ func TestNewFS(t *testing.T) {
 func TestWriteBlock(t *testing.T) {
 	dirname := allocTempDir(t)
 	defer os.RemoveAll(dirname)
-	fs := blockfs.NewFS(dirname)
+	fs, err := blockfs.NewFS(dirname)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
 	data := []byte("test-data")
 	block := blockfs.NewBlock(data)
-	err := fs.WriteBlock(block)
+	err = fs.WriteBlock(block)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
+	// test that re-writing the same block produces no errors.
+	err = fs.WriteBlock(block)
 	if err != nil {
 		t.Error("unexpected error:", err)
 		t.Fail()
@@ -51,9 +65,13 @@ func TestWriteBlock(t *testing.T) {
 func TestExport(t *testing.T) {
 	dirname := allocTempDir(t)
 	defer os.RemoveAll(dirname)
-	fs := blockfs.NewFS(dirname)
+	fs, err := blockfs.NewFS(dirname)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
 
-	buff := make([]byte, blockfs.BlockSize + blockfs.BlockSize >> 1)
+	buff := make([]byte, blockfs.BlockSize+blockfs.BlockSize>>1)
 	rand.Read(buff)
 	hashlist, err := fs.Export(bytes.NewBuffer(buff))
 

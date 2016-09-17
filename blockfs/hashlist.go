@@ -1,8 +1,8 @@
 package blockfs
 
 import (
-	"io"
 	"bufio"
+	"io"
 )
 
 type HashList []Checksum

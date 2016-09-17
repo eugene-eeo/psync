@@ -14,11 +14,14 @@ type FS struct {
 	Path string
 }
 
-func NewFS(path string) *FS {
-	os.MkdirAll(filepath.Join(path, BlocksDir), 0755)
-	return &FS{
-		Path: path,
+func NewFS(path string) (*FS, error) {
+	os.Mkdir(path, 0755)
+	err := os.Mkdir(filepath.Join(path, BlocksDir), 0755)
+	if err != nil && !os.IsExist(err) {
+		return nil, err
 	}
+	fs := FS{Path: path}
+	return &fs, nil
 }
 
 func (fs *FS) WriteBlock(b *Block) error {
@@ -32,10 +35,11 @@ func (fs *FS) WriteBlock(b *Block) error {
 		return err
 	}
 	path := filepath.Join(fs.Path, BlocksDir, string(b.Checksum))
-	return os.Link(
-		tmp.Name(),
-		path,
-	)
+	err = os.Link(tmp.Name(), path)
+	if os.IsExist(err) {
+		return nil
+	}
+	return err
 }
 
 func (fs *FS) Export(r io.Reader) (HashList, error) {

@@ -1,10 +1,10 @@
 package blockfs_test
 
 import (
-	"github.com/eugene-eeo/psync/blockfs"
-	"testing"
 	"bytes"
+	"github.com/eugene-eeo/psync/blockfs"
 	"strings"
+	"testing"
 )
 
 func TestHashListWriteTo(t *testing.T) {
@@ -49,5 +49,8 @@ func TestNewHashList(t *testing.T) {
 				lines[i],
 			)
 		}
+	}
+	if len(hl) != 3 {
+		t.Error("expected 3 hashes, got", len(hl))
 	}
 }
