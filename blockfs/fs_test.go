@@ -47,6 +47,12 @@ func TestWriteBlock(t *testing.T) {
 		t.Error("unexpected error:", err)
 		t.Fail()
 	}
+	// test that re-writing the same block produces no errors.
+	err = fs.WriteBlock(block)
+	if err != nil {
+		t.Error("unexpected error:", err)
+		t.Fail()
+	}
 	b, _ := fs.GetBlock(block.Checksum)
 	if !bytes.Equal(b.Data, data) {
 		t.Error("expected data to equal", data, "got", b.Data)

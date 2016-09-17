@@ -14,3 +14,8 @@
         test -f "$HOME/.psync/blocks/$line"
     done
 }
+
+@test "cat returns exact contents" {
+    hashlist=$(echo "abc" | ./psync export)
+    [[ $(./psync cat $hashlist) == "abc" ]]
+}
