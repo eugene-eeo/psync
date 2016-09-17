@@ -50,8 +50,10 @@ Usage:
   psync glue [--verify]
   psync cat [--verify] <checksum>
   psync up <addr>
+  psync get <addr> [--force]
 
 Options:
+  --force     Redownload blocks even if they exist.
   --verify    Verify block contents.
   -h --help   Show this screen.`
 	args, _ := docopt.Parse(usage, nil, true, "psync 0.1.0", false)
@@ -76,6 +78,13 @@ Options:
 		Serve(
 			fs,
 			args["<addr>"].(string),
+		)
+	}
+	if args["get"].(bool) {
+		Get(
+			fs,
+			args["<addr>"].(string),
+			args["--force"].(bool),
 		)
 	}
 }

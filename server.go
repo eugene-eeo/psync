@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/eugene-eeo/psync/blockfs"
+	"log"
 	"net/http"
 	"regexp"
-	"log"
-	"github.com/eugene-eeo/psync/blockfs"
 )
 
 func Serve(fs *blockfs.FS, addr string) {
