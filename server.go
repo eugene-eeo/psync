@@ -2,30 +2,12 @@ package main
 
 import (
 	"net/http"
-	"log"
-	"os/user"
-	"path/filepath"
 	"regexp"
+	"log"
 	"github.com/eugene-eeo/psync/blockfs"
-	"flag"
 )
 
-func main() {
-	addrPtr := flag.String("addr", ":8000", "address")
-	flag.Parse()
-
-	addr := *addrPtr
-
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-	path := filepath.Join(usr.HomeDir, ".psync")
-	fs, err := blockfs.NewFS(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func Serve(fs *blockfs.FS, addr string) {
 	pat := regexp.MustCompile("^[a-f0-9]{64}$")
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		p := r.URL.Path[1:]

@@ -49,6 +49,7 @@ Usage:
   psync export
   psync glue [--verify]
   psync cat [--verify] <checksum>
+  psync up <addr>
 
 Options:
   --verify    Verify block contents.
@@ -69,6 +70,12 @@ Options:
 			fs,
 			blockfs.Checksum(args["<checksum>"].(string)),
 			args["--verify"].(bool),
+		)
+	}
+	if args["up"].(bool) {
+		Serve(
+			fs,
+			args["<addr>"].(string),
 		)
 	}
 }

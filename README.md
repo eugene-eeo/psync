@@ -6,7 +6,7 @@ server that serves some blocks (8192-byte chunks):
     $ cat image.png | psync export | tee image.png.hashlist
     ba7816bf...
     cb8379ac...
-    $ psync-http localhost:8000
+    $ psync up localhost:8000
 
 and then others will get data from your servers if they find you:
 
