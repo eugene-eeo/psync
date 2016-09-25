@@ -46,14 +46,14 @@ func (fs *FS) Export(r io.Reader) (HashList, error) {
 	hashes := HashList{}
 	buffer := make([]byte, BlockSize)
 	for {
-		length, err := r.Read(buffer)
+		length, err := io.ReadFull(r, buffer)
 		if length == 0 {
 			break
 		}
 		b := NewBlock(buffer[:length])
 		fs.WriteBlock(b)
 		hashes = append(hashes, b.Checksum)
-		if err != nil && err != io.EOF {
+		if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
 			return hashes, err
 		}
 	}
