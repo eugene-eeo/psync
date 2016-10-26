@@ -58,4 +58,3 @@ trusted thing is the hashlist.
 
  - come up with method for peer sharing
  - gossip protocol for block discovery
- - use sqlite for stats storage

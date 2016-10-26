@@ -2,9 +2,9 @@ package blockfs
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"github.com/dchest/safefile"
 )
 
 const BlocksDir string = "blocks"
@@ -14,32 +14,39 @@ type FS struct {
 	Path string
 }
 
+func mkdirs(paths ...string) error {
+	for _, path := range paths {
+		err := os.Mkdir(path, 0755)
+		if err != nil && !os.IsExist(err) {
+			return err
+		}
+	}
+	return nil
+}
+
 func NewFS(path string) (*FS, error) {
-	os.Mkdir(path, 0755)
-	err := os.Mkdir(filepath.Join(path, BlocksDir), 0755)
-	if err != nil && !os.IsExist(err) {
+	err := mkdirs(
+		path,
+		filepath.Join(path, BlocksDir),
+	)
+	if err != nil {
 		return nil, err
 	}
-	fs := FS{Path: path}
-	return &fs, nil
+	return &FS{Path: path}, nil
 }
 
 func (fs *FS) WriteBlock(b *Block) error {
-	tmp, err := ioutil.TempFile("", "")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(tmp.Name())
-	_, err = b.WriteTo(tmp)
-	if err != nil {
-		return err
-	}
 	path := filepath.Join(fs.Path, BlocksDir, string(b.Checksum))
-	err = os.Link(tmp.Name(), path)
-	if os.IsExist(err) {
-		return nil
+	f, err := safefile.Create(path, 0644)
+	if err != nil {
+		return err
 	}
-	return err
+	defer f.Close()
+	_, err = b.WriteTo(f)
+	if err != nil {
+		return err
+	}
+	return f.Commit()
 }
 
 func (fs *FS) Export(r io.Reader) (HashList, error) {
