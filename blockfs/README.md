@@ -24,5 +24,3 @@ func main() {
 ## todo
 
  - lots of tests
- - implement extra features:
-    - gc for cleaning up unused blocks
