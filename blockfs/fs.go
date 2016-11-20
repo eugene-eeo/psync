@@ -1,10 +1,10 @@
 package blockfs
 
 import (
+	"github.com/dchest/safefile"
 	"io"
 	"os"
 	"path/filepath"
-	"github.com/dchest/safefile"
 )
 
 const BlocksDir string = "blocks"

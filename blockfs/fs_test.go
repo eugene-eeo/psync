@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -18,31 +19,35 @@ func allocTempDir(t *testing.T) string {
 	return dirname
 }
 
-func TestNewFS(t *testing.T) {
+func allocTempFs(t *testing.T) (*blockfs.FS, func()) {
 	dirname := allocTempDir(t)
-	defer os.RemoveAll(dirname)
-	_, err := blockfs.NewFS(dirname)
+	fs, err := blockfs.NewFS(dirname)
+	cleanup := func() {
+		os.RemoveAll(dirname)
+	}
 	if err != nil {
 		t.Error("unexpected error:", err)
+		cleanup()
 		t.Fail()
 	}
-	_, err = os.Stat(filepath.Join(dirname, "blocks"))
+	return fs, cleanup
+}
+
+func TestNewFS(t *testing.T) {
+	fs, cleanup := allocTempFs(t)
+	defer cleanup()
+	_, err := os.Stat(filepath.Join(fs.Path, "blocks"))
 	if err != nil {
 		t.Error("unexpected error:", err)
 	}
 }
 
 func TestWriteBlock(t *testing.T) {
-	dirname := allocTempDir(t)
-	defer os.RemoveAll(dirname)
-	fs, err := blockfs.NewFS(dirname)
-	if err != nil {
-		t.Error("unexpected error:", err)
-		t.Fail()
-	}
+	fs, cleanup := allocTempFs(t)
+	defer cleanup()
 	data := []byte("test-data")
 	block := blockfs.NewBlock(data)
-	err = fs.WriteBlock(block)
+	err := fs.WriteBlock(block)
 	if err != nil {
 		t.Error("unexpected error:", err)
 		t.Fail()
@@ -63,13 +68,8 @@ func TestWriteBlock(t *testing.T) {
 }
 
 func TestExport(t *testing.T) {
-	dirname := allocTempDir(t)
-	defer os.RemoveAll(dirname)
-	fs, err := blockfs.NewFS(dirname)
-	if err != nil {
-		t.Error("unexpected error:", err)
-		t.Fail()
-	}
+	fs, cleanup := allocTempFs(t)
+	defer cleanup()
 
 	buff := make([]byte, blockfs.BlockSize+blockfs.BlockSize>>1)
 	rand.Read(buff)
@@ -95,5 +95,48 @@ func TestExport(t *testing.T) {
 
 	if !bytes.Equal(dst.Bytes(), buff) {
 		t.Error("expected resolved chunks to equal")
+	}
+}
+
+func TestExists(t *testing.T) {
+	fs, cleanup := allocTempFs(t)
+	defer cleanup()
+	block := blockfs.NewBlock([]byte("abc"))
+	err := fs.WriteBlock(block)
+	if err != nil {
+		t.Error("cannot write block:", err)
+		t.Fail()
+	}
+	if !fs.Exists(block.Checksum) {
+		t.Error("expected written block to exist")
+		t.Fail()
+	}
+	if fs.Exists(blockfs.Checksum("random-string")) {
+		t.Error("expected non-existent block to not exist")
+		t.Fail()
+	}
+}
+
+func TestMissingBlocks(t *testing.T) {
+	fs, cleanup := allocTempFs(t)
+	defer cleanup()
+	blocks := []*blockfs.Block{
+		blockfs.NewBlock([]byte("abc")),
+		blockfs.NewBlock([]byte("def")),
+		blockfs.NewBlock([]byte("ghi")),
+	}
+	hashlist := blockfs.HashList([]blockfs.Checksum{})
+	for _, block := range blocks {
+		hashlist = append(hashlist, block.Checksum)
+	}
+	if !reflect.DeepEqual(fs.MissingBlocks(hashlist), hashlist) {
+		t.Error("expected unwritten blocks to be missing")
+		t.Fail()
+	}
+	fs.WriteBlock(blocks[0])
+	fs.WriteBlock(blocks[1])
+	if !reflect.DeepEqual(fs.MissingBlocks(hashlist), hashlist[2:]) {
+		t.Error("expected written blocks to not be included")
+		t.Fail()
 	}
 }
