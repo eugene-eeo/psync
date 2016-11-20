@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
-	"os"
 	"errors"
 	"github.com/eugene-eeo/psync/blockfs"
+	"log"
 	"net/http"
+	"os"
 )
 
 type Job struct {
@@ -42,7 +42,7 @@ func produceResponses(fs *blockfs.FS, jobs <-chan *Job, dst chan<- *Response) {
 	for job := range jobs {
 		err := getTask(fs, job)
 		dst <- &Response{
-			Job: job,
+			Job:   job,
 			Error: err,
 		}
 	}
@@ -67,7 +67,7 @@ func Get(fs *blockfs.FS, addr string, force bool) {
 	for _, checksum := range hashlist {
 		jobs <- &Job{
 			Checksum: checksum,
-			Host: addr,
+			Host:     addr,
 		}
 	}
 	close(jobs)

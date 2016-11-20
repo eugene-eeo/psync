@@ -20,7 +20,3 @@ func main() {
     }
 }
 ```
-
-## todo
-
- - lots of tests
